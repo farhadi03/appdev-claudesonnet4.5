@@ -1,7 +1,8 @@
 package com.example.claudesonnet.controller;
 
-import com.example.claudesonnet.entity.Planet;
+import com.example.claudesonnet.dto.PlanetDTO;
 import com.example.claudesonnet.service.PlanetService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,34 +22,34 @@ public class PlanetController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Planet>> getAllPlanets() {
-        List<Planet> planets = planetService.getAllPlanets();
+    public ResponseEntity<List<PlanetDTO>> getAllPlanets() {
+        List<PlanetDTO> planets = planetService.getAllPlanets();
         return ResponseEntity.ok(planets);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Planet> getPlanetById(@PathVariable Long id) {
+    public ResponseEntity<PlanetDTO> getPlanetById(@PathVariable Long id) {
         return planetService.getPlanetById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/search")
-    public ResponseEntity<Planet> getPlanetByName(@RequestParam String name) {
+    public ResponseEntity<PlanetDTO> getPlanetByName(@RequestParam String name) {
         return planetService.getPlanetByName(name)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping
-    public ResponseEntity<Planet> createPlanet(@RequestBody Planet planet) {
-        Planet createdPlanet = planetService.createPlanet(planet);
+    public ResponseEntity<PlanetDTO> createPlanet(@Valid @RequestBody PlanetDTO planetDTO) {
+        PlanetDTO createdPlanet = planetService.createPlanet(planetDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPlanet);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Planet> updatePlanet(@PathVariable Long id, @RequestBody Planet planet) {
-        return planetService.updatePlanet(id, planet)
+    public ResponseEntity<PlanetDTO> updatePlanet(@PathVariable Long id, @Valid @RequestBody PlanetDTO planetDTO) {
+        return planetService.updatePlanet(id, planetDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

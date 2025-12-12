@@ -1,7 +1,8 @@
 package com.example.claudesonnet.controller;
 
-import com.example.claudesonnet.entity.Moon;
+import com.example.claudesonnet.dto.MoonDTO;
 import com.example.claudesonnet.service.MoonService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,34 +22,34 @@ public class MoonController {
     }
     
     @GetMapping
-    public ResponseEntity<List<Moon>> getAllMoons() {
-        List<Moon> moons = moonService.getAllMoons();
+    public ResponseEntity<List<MoonDTO>> getAllMoons() {
+        List<MoonDTO> moons = moonService.getAllMoons();
         return ResponseEntity.ok(moons);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Moon> getMoonById(@PathVariable Long id) {
+    public ResponseEntity<MoonDTO> getMoonById(@PathVariable Long id) {
         return moonService.getMoonById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/planet/{planetId}")
-    public ResponseEntity<List<Moon>> getMoonsByPlanetId(@PathVariable Long planetId) {
-        List<Moon> moons = moonService.getMoonsByPlanetId(planetId);
+    public ResponseEntity<List<MoonDTO>> getMoonsByPlanetId(@PathVariable Long planetId) {
+        List<MoonDTO> moons = moonService.getMoonsByPlanetId(planetId);
         return ResponseEntity.ok(moons);
     }
     
     @PostMapping("/planet/{planetId}")
-    public ResponseEntity<Moon> createMoon(@PathVariable Long planetId, @RequestBody Moon moon) {
-        return moonService.createMoon(planetId, moon)
+    public ResponseEntity<MoonDTO> createMoon(@PathVariable Long planetId, @Valid @RequestBody MoonDTO moonDTO) {
+        return moonService.createMoon(planetId, moonDTO)
                 .map(createdMoon -> ResponseEntity.status(HttpStatus.CREATED).body(createdMoon))
                 .orElse(ResponseEntity.badRequest().build());
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Moon> updateMoon(@PathVariable Long id, @RequestBody Moon moon) {
-        return moonService.updateMoon(id, moon)
+    public ResponseEntity<MoonDTO> updateMoon(@PathVariable Long id, @Valid @RequestBody MoonDTO moonDTO) {
+        return moonService.updateMoon(id, moonDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
