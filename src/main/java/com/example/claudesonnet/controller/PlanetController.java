@@ -29,16 +29,14 @@ public class PlanetController {
     
     @GetMapping("/{id}")
     public ResponseEntity<PlanetDTO> getPlanetById(@PathVariable Long id) {
-        return planetService.getPlanetById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        PlanetDTO planet = planetService.getPlanetById(id);
+        return ResponseEntity.ok(planet);
     }
     
     @GetMapping("/search")
     public ResponseEntity<PlanetDTO> getPlanetByName(@RequestParam String name) {
-        return planetService.getPlanetByName(name)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        PlanetDTO planet = planetService.getPlanetByName(name);
+        return ResponseEntity.ok(planet);
     }
     
     @PostMapping
@@ -49,17 +47,14 @@ public class PlanetController {
     
     @PutMapping("/{id}")
     public ResponseEntity<PlanetDTO> updatePlanet(@PathVariable Long id, @Valid @RequestBody PlanetDTO planetDTO) {
-        return planetService.updatePlanet(id, planetDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        PlanetDTO updatedPlanet = planetService.updatePlanet(id, planetDTO);
+        return ResponseEntity.ok(updatedPlanet);
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlanet(@PathVariable Long id) {
-        if (planetService.deletePlanet(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        planetService.deletePlanet(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

@@ -2,6 +2,7 @@ package com.example.claudesonnet.service;
 
 import com.example.claudesonnet.dto.PlanetDTO;
 import com.example.claudesonnet.entity.Planet;
+import com.example.claudesonnet.exception.ResourceNotFoundException;
 import com.example.claudesonnet.mapper.PlanetMapper;
 import com.example.claudesonnet.repository.PlanetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,14 +31,16 @@ public class PlanetService {
                 .collect(Collectors.toList());
     }
     
-    public Optional<PlanetDTO> getPlanetById(Long id) {
-        return planetRepository.findById(id)
-                .map(planetMapper::toDTO);
+    public PlanetDTO getPlanetById(Long id) {
+        Planet planet = planetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Planet", id));
+        return planetMapper.toDTO(planet);
     }
     
-    public Optional<PlanetDTO> getPlanetByName(String name) {
-        return planetRepository.findByName(name)
-                .map(planetMapper::toDTO);
+    public PlanetDTO getPlanetByName(String name) {
+        Planet planet = planetRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Planet", "name", name));
+        return planetMapper.toDTO(planet);
     }
     
     public PlanetDTO createPlanet(PlanetDTO planetDTO) {
@@ -47,22 +49,19 @@ public class PlanetService {
         return planetMapper.toDTO(savedPlanet);
     }
     
-    public Optional<PlanetDTO> updatePlanet(Long id, PlanetDTO planetDTO) {
-        return planetRepository.findById(id)
-                .map(planet -> {
-                    planetMapper.updateEntityFromDTO(planetDTO, planet);
-                    Planet updatedPlanet = planetRepository.save(planet);
-                    return planetMapper.toDTO(updatedPlanet);
-                });
+    public PlanetDTO updatePlanet(Long id, PlanetDTO planetDTO) {
+        Planet planet = planetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Planet", id));
+        
+        planetMapper.updateEntityFromDTO(planetDTO, planet);
+        Planet updatedPlanet = planetRepository.save(planet);
+        return planetMapper.toDTO(updatedPlanet);
     }
     
-    public boolean deletePlanet(Long id) {
-        return planetRepository.findById(id)
-                .map(planet -> {
-                    planetRepository.delete(planet);
-                    return true;
-                })
-                .orElse(false);
+    public void deletePlanet(Long id) {
+        Planet planet = planetRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Planet", id));
+        planetRepository.delete(planet);
     }
 }
 

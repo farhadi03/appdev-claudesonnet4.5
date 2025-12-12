@@ -29,9 +29,8 @@ public class MoonController {
     
     @GetMapping("/{id}")
     public ResponseEntity<MoonDTO> getMoonById(@PathVariable Long id) {
-        return moonService.getMoonById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        MoonDTO moon = moonService.getMoonById(id);
+        return ResponseEntity.ok(moon);
     }
     
     @GetMapping("/planet/{planetId}")
@@ -42,24 +41,20 @@ public class MoonController {
     
     @PostMapping("/planet/{planetId}")
     public ResponseEntity<MoonDTO> createMoon(@PathVariable Long planetId, @Valid @RequestBody MoonDTO moonDTO) {
-        return moonService.createMoon(planetId, moonDTO)
-                .map(createdMoon -> ResponseEntity.status(HttpStatus.CREATED).body(createdMoon))
-                .orElse(ResponseEntity.badRequest().build());
+        MoonDTO createdMoon = moonService.createMoon(planetId, moonDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdMoon);
     }
     
     @PutMapping("/{id}")
     public ResponseEntity<MoonDTO> updateMoon(@PathVariable Long id, @Valid @RequestBody MoonDTO moonDTO) {
-        return moonService.updateMoon(id, moonDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        MoonDTO updatedMoon = moonService.updateMoon(id, moonDTO);
+        return ResponseEntity.ok(updatedMoon);
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMoon(@PathVariable Long id) {
-        if (moonService.deleteMoon(id)) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.notFound().build();
+        moonService.deleteMoon(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

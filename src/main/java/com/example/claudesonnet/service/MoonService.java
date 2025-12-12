@@ -2,6 +2,8 @@ package com.example.claudesonnet.service;
 
 import com.example.claudesonnet.dto.MoonDTO;
 import com.example.claudesonnet.entity.Moon;
+import com.example.claudesonnet.entity.Planet;
+import com.example.claudesonnet.exception.ResourceNotFoundException;
 import com.example.claudesonnet.mapper.MoonMapper;
 import com.example.claudesonnet.repository.MoonRepository;
 import com.example.claudesonnet.repository.PlanetRepository;
@@ -10,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,43 +35,45 @@ public class MoonService {
                 .collect(Collectors.toList());
     }
     
-    public Optional<MoonDTO> getMoonById(Long id) {
-        return moonRepository.findById(id)
-                .map(moonMapper::toDTO);
+    public MoonDTO getMoonById(Long id) {
+        Moon moon = moonRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Moon", id));
+        return moonMapper.toDTO(moon);
     }
     
     public List<MoonDTO> getMoonsByPlanetId(Long planetId) {
+        // Verify planet exists
+        planetRepository.findById(planetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Planet", planetId));
+        
         return moonRepository.findByPlanetId(planetId).stream()
                 .map(moonMapper::toDTO)
                 .collect(Collectors.toList());
     }
     
-    public Optional<MoonDTO> createMoon(Long planetId, MoonDTO moonDTO) {
-        return planetRepository.findById(planetId)
-                .map(planet -> {
-                    Moon moon = moonMapper.toEntity(moonDTO);
-                    moon.setPlanet(planet);
-                    Moon savedMoon = moonRepository.save(moon);
-                    return moonMapper.toDTO(savedMoon);
-                });
+    public MoonDTO createMoon(Long planetId, MoonDTO moonDTO) {
+        Planet planet = planetRepository.findById(planetId)
+                .orElseThrow(() -> new ResourceNotFoundException("Planet", planetId));
+        
+        Moon moon = moonMapper.toEntity(moonDTO);
+        moon.setPlanet(planet);
+        Moon savedMoon = moonRepository.save(moon);
+        return moonMapper.toDTO(savedMoon);
     }
     
-    public Optional<MoonDTO> updateMoon(Long id, MoonDTO moonDTO) {
-        return moonRepository.findById(id)
-                .map(moon -> {
-                    moonMapper.updateEntityFromDTO(moonDTO, moon);
-                    Moon updatedMoon = moonRepository.save(moon);
-                    return moonMapper.toDTO(updatedMoon);
-                });
+    public MoonDTO updateMoon(Long id, MoonDTO moonDTO) {
+        Moon moon = moonRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Moon", id));
+        
+        moonMapper.updateEntityFromDTO(moonDTO, moon);
+        Moon updatedMoon = moonRepository.save(moon);
+        return moonMapper.toDTO(updatedMoon);
     }
     
-    public boolean deleteMoon(Long id) {
-        return moonRepository.findById(id)
-                .map(moon -> {
-                    moonRepository.delete(moon);
-                    return true;
-                })
-                .orElse(false);
+    public void deleteMoon(Long id) {
+        Moon moon = moonRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Moon", id));
+        moonRepository.delete(moon);
     }
 }
 
