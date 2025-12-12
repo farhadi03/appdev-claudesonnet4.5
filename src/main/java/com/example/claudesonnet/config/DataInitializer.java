@@ -2,23 +2,52 @@ package com.example.claudesonnet.config;
 
 import com.example.claudesonnet.entity.Moon;
 import com.example.claudesonnet.entity.Planet;
+import com.example.claudesonnet.entity.User;
 import com.example.claudesonnet.repository.PlanetRepository;
+import com.example.claudesonnet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
     
     private final PlanetRepository planetRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     
     @Autowired
-    public DataInitializer(PlanetRepository planetRepository) {
+    public DataInitializer(PlanetRepository planetRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.planetRepository = planetRepository;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     
     @Override
     public void run(String... args) throws Exception {
+        // Initialize sample users
+        initializeUsers();
+        
+        // Initialize sample planetary data
+        initializePlanets();
+    }
+    
+    private void initializeUsers() {
+        // Create admin user
+        User admin = new User("admin", passwordEncoder.encode("admin123"), "ROLE_ADMIN");
+        userRepository.save(admin);
+        
+        // Create regular user
+        User user = new User("user", passwordEncoder.encode("user123"), "ROLE_USER");
+        userRepository.save(user);
+        
+        System.out.println("Sample users initialized successfully!");
+        System.out.println("Admin credentials - username: admin, password: admin123");
+        System.out.println("User credentials - username: user, password: user123");
+    }
+    
+    private void initializePlanets() {
         // Create Earth with its moon
         Planet earth = new Planet("Earth", 12742.0, 149.6);
         Moon earthMoon = new Moon("Moon", 3474.8, 27.3);
